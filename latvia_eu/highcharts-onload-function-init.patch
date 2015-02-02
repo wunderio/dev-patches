@@ -1,0 +1,97 @@
+diff --git a/modules/charts_highcharts/charts_highcharts.js b/modules/charts_highcharts/charts_highcharts.js
+index 5a6429a..2e59518 100644
+--- a/modules/charts_highcharts/charts_highcharts.js
++++ b/modules/charts_highcharts/charts_highcharts.js
+@@ -3,15 +3,84 @@
+  * JavaScript integration between Highcharts and Drupal.
+  */
+ (function ($) {
++  var spent_time = 0;
++  var max_timeout = 0;
++  var max_percentages = Array();
++  var current_percentages = Array();
++  var slice_time_interval = 100; // one small call time.
++  
++  function AnimateStep(chart) {
++    if (spent_time <= max_timeout) {
++      var data_length = chart.series[0].data.length;
+ 
+-Drupal.behaviors.chartsHighcharts = {};
+-Drupal.behaviors.chartsHighcharts.attach = function(context, settings) {
+-  $('.charts-highchart').once('charts-highchart', function() {
+-    if ($(this).attr('data-chart')) {
+-      var config = $.parseJSON($(this).attr('data-chart'));
+-      $(this).highcharts(config);
++      for (j=0;j<data_length;j++) {
++        if (typeof(current_percentages[j]) == "undefined") {
++          current_percentages[j] = 0;
++        }
++        var step = max_percentages[j] / ((max_timeout / slice_time_interval));
++        
++        if (Math.round(current_percentages[j] + step) <= max_percentages[j]) {
++          current_percentages[j] += step
++
++          $('#'+chart.renderTo.id+'-label-' + j + ' span').html( Math.round(current_percentages[j]) );
++        }
++      }
++
++      setTimeout(function() { AnimateStep(chart); }, slice_time_interval);
++
++      spent_time += slice_time_interval
++    }
++  }
++  
++  function onload(chart) {
++    max_timeout = chart.options.plotOptions.series.animation.duration - 700;
++    
++    if ( typeof(chart.renderTo.id) == "undefined" || !$( '#label-' + chart.renderTo.id ).length ) {
++      return;
+     }
+-  });
+-};
++    $legend = $('#label-' + chart.renderTo.id);
+ 
++    $.each(chart.series[0].data, function (j, data) {
++        var label = '<div class="item" id="'+chart.renderTo.id+'-label-' + j + '" style="color: '+data.color+';"><span>0</span>% ' + data.name + '</div>';
++
++        max_percentages[j] = Math.round(data.percentage);
++        $legend.append(label);
++    });
++
++    $('#label-' + chart.renderTo.id + ' .item').click(function(){
++        var inx = $(this).index(),
++            point = chart.series[0].data[inx];
++
++        if(point.visible)
++            point.setVisible(false);
++        else
++            point.setVisible(true);
++    });
++    
++    AnimateStep(chart);
++  }
++  
++Drupal.behaviors.chartsHighcharts = {};
++Drupal.behaviors.chartsHighcharts.attach = function(context, settings) {
++  // Animate widgets when in viewport
++  if ($.fn.waypoint) {
++    $('.charts-highchart', context).waypoint(function(direction) {
++      $('.charts-highchart').once('charts-highchart', function() {
++        if ($(this).attr('data-chart')) {
++          var config = $.parseJSON($(this).attr('data-chart'));
++          $(this).highcharts(config, onload);
++        }
++      });
++    }, { offset: 'bottom-in-view' });
++  } else {
++      $('.charts-highchart').once('charts-highchart', function() {
++        if ($(this).attr('data-chart')) {
++          setTimeout(function(charts) {
++            var config = $.parseJSON(charts.attr('data-chart'));
++            charts.highcharts(config, onload);
++          }, 500, $(this));
++        }
++      });    
++  }
++  };
+ })(jQuery);
