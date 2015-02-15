@@ -1,0 +1,37 @@
+diff --git a/taxonomy_tools.module b/taxonomy_tools.module
+index 4fbf5e7..de98d38 100644
+--- a/taxonomy_tools.module
++++ b/taxonomy_tools.module
+@@ -193,21 +193,21 @@ function taxonomy_tools_taxonomy_term_access($term) {
+ /**
+  * Implements hook_node_grants().
+  */
+-function taxonomy_tools_node_grants($account, $op) {
+-  $node_grants = array();
+-  $roles = $account->roles;
+-  $node_grants = array('taxonomy_tools' => array_keys($roles));
+-  return $node_grants;
+-}
++// function taxonomy_tools_node_grants($account, $op) {
++//   $node_grants = array();
++//   $roles = $account->roles;
++//   $node_grants = array('taxonomy_tools' => array_keys($roles));
++//   return $node_grants;
++// }
+ 
+ /**
+  * Implements hook_node_access_records().
+  */
+-function taxonomy_tools_node_access_records($node) {
+-  $grants = array();
+-  $grants = taxonomy_tools_build_grants($node);
+-  return $grants;
+-}
++// function taxonomy_tools_node_access_records($node) {
++//   $grants = array();
++//   $grants = taxonomy_tools_build_grants($node);
++//   return $grants;
++// }
+ 
+ /**
+  * Builds node access grants for all user roles.
