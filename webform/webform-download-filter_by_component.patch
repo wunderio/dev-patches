@@ -1,0 +1,78 @@
+diff --git a/includes/webform.report.inc b/includes/webform.report.inc
+index d1db307..8817b28 100644
+--- a/includes/webform.report.inc
++++ b/includes/webform.report.inc
+@@ -215,7 +215,7 @@ function template_preprocess_webform_results_submissions(&$vars) {
+  * Create a table containing all submitted values for a webform node.
+  */
+ function webform_results_table($node, $pager_count = 0) {
+-  
++
+   // Determine whether views or hard-coded tables should be used for the submissions table.
+   if (!webform_variable_get('webform_table')) {
+     // Load and preview the results view with a node id argument
+@@ -466,6 +466,23 @@ function webform_results_download_form($form, &$form_state, $node) {
+     '#process' => array('webform_component_select'),
+   );
+ 
++  $form['filter'] = array(
++    '#type' => 'fieldset',
++    '#title' => t('Filter by component'),
++    '#collapsible' => TRUE,
++    '#collapsed' => TRUE,
++  );
++
++  $form['filter']['component_key'] = array(
++    '#type' => 'select',
++    '#options' => $csv_components,
++    '#title' => t('Component key'),
++  );
++  $form['filter']['component_value'] = array(
++    '#type' => 'textfield',
++    '#title' => t('Component value'),
++  );
++
+   $form['range'] = array(
+     '#type' => 'fieldset',
+     '#title' => t('Download range options'),
+@@ -516,7 +533,6 @@ function webform_results_download_form($form, &$form_state, $node) {
+     '#default_value' => $now . ' 23:59'
+   );
+ 
+-
+   // If drafts are allowed, provide options to filter download based on draft status.
+   if ($node->webform['allow_draft'] || $node->webform['auto_save']) {
+     $form['range']['completion_type'] = array(
+@@ -773,6 +789,23 @@ function webform_results_download_form_submit(&$form, &$form_state) {
+     $options['sids'] = webform_download_sids($node->nid, $options['range']);
+   }
+ 
++  // Specify component key and value to filter submissions
++  if (!empty($form_state['values']['component_key']) && !empty($form_state['values']['component_value'])) {
++    $key = $form_state['values']['component_key'];
++    $value = $form_state['values']['component_value'];
++
++    $query = db_select('webform_submissions', 'ws');
++    $query->fields('ws', array('sid', 'nid'));
++    $query->join('webform_submitted_data', 'wsd', 'ws.sid = wsd.sid');
++    $query->condition('ws.nid', $node->nid);
++    $query->fields('wsd', array('sid', 'data'));
++    $query->condition('wsd.cid', $key, '=');
++    $query->condition('wsd.data', $value, '=');
++
++    $sids = $query->execute()->fetchCol();
++    $options['sids'] = $sids;
++  }
++
+   // Determine an appropriate batch size based on the form and server specs.
+   if (!isset($options['range']['batch_size'])) {
+     // Start the batch size at 50,000 per batch, but divide by number of
+@@ -791,7 +824,7 @@ function webform_results_download_form_submit(&$form, &$form_state) {
+ 
+     // Allow a non-UI configuration to override the batch size.
+     $batch_size = variable_get('webform_export_batch_size', $batch_size);
+-    
++
+     $options['range']['batch_size'] = $batch_size;
+   }
+ 
