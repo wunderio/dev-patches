@@ -1,0 +1,26 @@
+diff --git a/includes/flag/flag_flag.inc b/includes/flag/flag_flag.inc
+index 7adc458..0c3349d 100644
+--- a/includes/flag/flag_flag.inc
++++ b/includes/flag/flag_flag.inc
+@@ -1553,19 +1553,13 @@ class flag_flag {
+       if ($this->global) {
+         // In case of global flags, the JavaScript template is to contain
+         // the opposite of the current state.
+-        $js_action = ($action == 'flag' ? 'unflag' : 'flag');
+-      }
+-      else {
+-        // In case of non-global flags, we always show the "flag!" link,
+-        // and then replace it with the "unflag!" link through JavaScript.
+-        $js_action = 'unflag';
+-        $action = 'flag';
++        $action = ($action == 'flag' ? 'unflag' : 'flag');
+       }
+       if (!isset($js_added[$this->name . '_' . $entity_id])) {
+         $js_added[$this->name . '_' . $entity_id] = TRUE;
+         $js_template = theme($this->theme_suggestions(), array(
+           'flag' => $this,
+-          'action' => $js_action,
++          'action' => $action,
+           'entity_id' => $entity_id,
+           'after_flagging' => $after_flagging,
+         ));
