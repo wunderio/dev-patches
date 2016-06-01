@@ -1,0 +1,40 @@
+diff --git a/includes/webform.report.inc b/includes/webform.report.inc
+index a61e377..376addc 100644
+--- a/includes/webform.report.inc
++++ b/includes/webform.report.inc
+@@ -21,6 +21,17 @@ function webform_results_submissions($node, $user_filter, $pager_count) {
+   if (!webform_variable_get('webform_table')) {
+     // Load the submissions view
+     $view = webform_get_view($node, 'webform_submissions');
++
++    // Janis mod: clear cache if view is not an object. Freshdesk issue #3736
++    if (!is_object($view)) {
++      // clear all caches. might clear selectively?
++      drupal_flush_all_caches(); 
++      // re-read object
++      $view = webform_get_view($node, 'webform_submissions');
++      // notify?
++      watchdog('webform', 'Views webform object missing from cache!', array(), WATCHDOG_ERROR);
++    }
++
+     if ($user_filter) {
+       if ($user->uid) {
+         drupal_set_title(t('Submissions for %user', array('%user' => $user->name)), PASS_THROUGH);
+@@ -220,6 +231,17 @@ function webform_results_table($node, $pager_count = 0) {
+   if (!webform_variable_get('webform_table')) {
+     // Load and preview the results view with a node id argument
+     $view = webform_get_view($node, 'webform_results');
++
++    // Janis mod: clear cache if view is not an object. Freshdesk issue #3736
++    if (!is_object($view)) {
++      // clear all caches. might clear selectively?
++      drupal_flush_all_caches(); 
++      // re-read object
++      $view = webform_get_view($node, 'webform_submissions');
++      // notify?
++      watchdog('webform', 'Views webform object missing from cache!', array(), WATCHDOG_ERROR);
++    }
++
+     return $view->preview('default', array($node->nid));
+   }
+ 
