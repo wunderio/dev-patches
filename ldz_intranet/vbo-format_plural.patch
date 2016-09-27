@@ -1,0 +1,34 @@
+diff --git a/views_bulk_operations.module b/views_bulk_operations.module
+index e6537df..85e273b 100644
+--- a/views_bulk_operations.module
++++ b/views_bulk_operations.module
+@@ -387,9 +387,9 @@ function theme_views_bulk_operations_select_all($variables) {
+     }
+ 
+     $wrapper_class = 'vbo-table-select-all-markup';
+-    $this_page_count = format_plural(count($view->result), '1 row', '@count rows');
++    $this_page_count = format_plural(count($view->result), '@count row', '@count rows');
+     $this_page = t('Selected <strong>!row_count</strong> in this page.', array('!row_count' => $this_page_count));
+-    $all_pages_count = format_plural($view->total_rows, '1 row', '@count rows');
++    $all_pages_count = format_plural($view->total_rows, '@count row', '@count rows');
+     $all_pages = t('Selected <strong>!row_count</strong> in this view.', array('!row_count' => $all_pages_count));
+ 
+     $form['select_all_pages'] = array(
+@@ -1033,7 +1033,7 @@ function views_bulk_operations_active_queue_process($queue_name, $operation, $to
+     // All done. Provide a status message to the user.
+     $context['results']['log'][] = t('Performed %operation on @items.', array(
+       '%operation' => $operation->label(),
+-      '@items' => format_plural($context['sandbox']['progress'], '1 item', '@count items'),
++      '@items' => format_plural($context['sandbox']['progress'], '@count item', '@count items'),
+     ));
+   }
+ }
+@@ -1220,7 +1220,7 @@ function views_bulk_operations_direct_process($operation, $rows, $options) {
+   $context['results']['progress'] += count($rows);
+   $context['results']['log'][] = t('Performed %operation on @items.', array(
+     '%operation' => $operation->label(),
+-    '@items' => format_plural(count($rows), '1 item', '@count items'),
++    '@items' => format_plural(count($rows), '@count item', '@count items'),
+   ));
+ 
+   views_bulk_operations_execute_finished(TRUE, $context['results'], array());
