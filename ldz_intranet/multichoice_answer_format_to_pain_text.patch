@@ -1,0 +1,13 @@
+diff --git a/question_types/multichoice/multichoice.classes.inc b/question_types/multichoice/multichoice.classes.inc
+index 1b08a29a..08e46afb 100644
+--- a/question_types/multichoice/multichoice.classes.inc
++++ b/question_types/multichoice/multichoice.classes.inc
+@@ -588,7 +588,7 @@ class MultichoiceQuestion extends QuizQuestion {
+         '#type' => 'text_format',
+         '#default_value' => $short['answer']['value'],
+         '#required' => $i < 2,
+-        '#format' => isset($short['answer']['format']) ? $short['answer']['format'] : NULL,
++        '#format' => 'plain_text',
+         '#rows' => 3,
+       );
+ 
