@@ -1,0 +1,37 @@
+diff --git a/quiz.admin.inc b/quiz.admin.inc
+index 2c196c2c..3330f44f 100644
+--- a/quiz.admin.inc
++++ b/quiz.admin.inc
+@@ -769,6 +769,13 @@ function _quiz_add_fields_for_random_quiz(&$form, $quiz) {
+     '#title' => t('Settings for random questions'),
+     '#collapsible' => TRUE,
+   );
++  
++  if ($quiz->number_of_random_questions == 0) {
++    $numberofquestions = '';
++  } else {
++    $numberofquestions = $quiz->number_of_random_questions;
++  }
++
+   $form['question_list']['random_settings']['num_random_questions'] = array(
+     '#type' => 'textfield',
+     '#size' => 3,
+@@ -776,7 +783,8 @@ function _quiz_add_fields_for_random_quiz(&$form, $quiz) {
+     '#weight' => -5,
+     '#title' => t('Number of random questions'),
+     '#description' => t('The number of questions to be randomly selected each time someone takes this quiz'),
+-    '#default_value' => isset($quiz->number_of_random_questions) ? $quiz->number_of_random_questions : 10,
++    '#required' => true,
++    '#default_value' => $numberofquestions,
+   );
+   $form['question_list']['random_settings']['max_score_for_random'] = array(
+     '#type' => 'textfield',
+@@ -977,7 +985,7 @@ function quiz_questions_form_validate($form, $form_state) {
+   }
+ 
+   if (empty($weight_map)) {
+-    form_set_error('none', 'No questions were included.');
++    form_set_error('none', t('No questions were included.'));
+     return;
+   }
+ 
